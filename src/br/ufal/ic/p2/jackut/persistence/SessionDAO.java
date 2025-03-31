@@ -1,3 +1,10 @@
+/**
+ * Classe responsável pela persistência das sessões no sistema.
+ * As sessões são armazenadas e recuperadas a partir de um arquivo XML.
+ *
+ * @author MarcosMelo
+ * @version 1.0
+ */
 package br.ufal.ic.p2.jackut.persistence;
 
 import java.io.*;
@@ -7,7 +14,11 @@ public class SessionDAO {
 
     private static final String SESSIONS_FILE = "database/sessions.xml";
 
-    // Método para salvar as sessões
+    /**
+     * Salva a lista de sessões em um arquivo.
+     *
+     * @param sessions Lista de sessões a serem salvas.
+     */
     public void save(List<String> sessions) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SESSIONS_FILE))) {
             out.writeObject(sessions);
@@ -16,7 +27,11 @@ public class SessionDAO {
         }
     }
 
-    // Método para carregar as sessões
+    /**
+     * Carrega a lista de sessões do arquivo.
+     *
+     * @return Lista de sessões carregadas ou null se não houver dados válidos.
+     */
     public List<String> load() {
         File file = new File(SESSIONS_FILE);
         if (file.exists()) {

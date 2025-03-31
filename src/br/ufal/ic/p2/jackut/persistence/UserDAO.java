@@ -1,3 +1,10 @@
+/**
+ * Classe responsável pela persistência dos usuários no sistema.
+ * Os usuários são armazenados e recuperados a partir de um arquivo XML.
+ *
+ * @author SeuNome
+ * @version 1.0
+ */
 package br.ufal.ic.p2.jackut.persistence;
 
 import br.ufal.ic.p2.jackut.models.User;
@@ -9,7 +16,11 @@ public class UserDAO {
 
     private static final String USERS_FILE = "database/users.xml";
 
-    // Método para salvar os usuários
+    /**
+     * Salva a lista de usuários em um arquivo.
+     *
+     * @param users Lista de usuários a serem salvos.
+     */
     public void save(List<User> users) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(USERS_FILE))) {
             out.writeObject(users);
@@ -18,7 +29,11 @@ public class UserDAO {
         }
     }
 
-    // Método para carregar os usuários
+    /**
+     * Carrega a lista de usuários do arquivo.
+     *
+     * @return Lista de usuários carregada ou null se não houver dados válidos.
+     */
     public List<User> load() {
         File file = new File(USERS_FILE);
         if (file.exists()) {
