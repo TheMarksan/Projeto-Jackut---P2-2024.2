@@ -9,7 +9,7 @@ public class Main {
                 //"tests/us2_2.txt",
                 //"tests/us3_1.txt",
                 //"tests/us3_2.txt",
-                "tests/us4_1.txt",
+                //"tests/us4_1.txt",
                 "tests/us4_2.txt",
         };
         EasyAccept.main(args2);

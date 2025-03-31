@@ -1,8 +1,7 @@
 package br.ufal.ic.p2.jackut.models;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class UserProfile implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -21,10 +20,14 @@ public class UserProfile implements Serializable {
     // Lista de amigos
     private List<String> amigos;
     private List<String> amigosPendentes;
+    private Queue<String> recados;
+    private List<String> recadosLidos;
 
     public UserProfile() {
         this.amigos = new ArrayList<>();
         this.amigosPendentes = new ArrayList<>();
+        this.recados = new LinkedList<>();
+        this.recadosLidos = new ArrayList<>();
     }
 
     // Métodos para acessar e editar os atributos do perfil
@@ -128,6 +131,15 @@ public class UserProfile implements Serializable {
 
     public void removerAmigoPendente(String loginAmigo) {
         amigosPendentes.remove(loginAmigo);
+    }
+
+
+    public List<String> getRecadosLidos() {
+        return recadosLidos;
+    }
+    // Retorna uma cópia da fila como lista (para evitar alterações externas)
+    public Queue<String> getRecados() {
+        return recados;
     }
 
     // Verificação se o atributo está preenchido

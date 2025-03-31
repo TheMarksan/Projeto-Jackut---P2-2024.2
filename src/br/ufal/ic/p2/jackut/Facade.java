@@ -189,7 +189,7 @@ public class Facade {
      * @param valor O valor atribuído.
      * @throws UserCreationException Se o usuário não for encontrado.
      */
-    public void editarPerfil(String id, String atributo, String valor) throws UserCreationException {
+    public void editarPerfil(String id, String atributo, String valor) throws ProfileEditException {
         for (User user : this.users) {
             if (user.getName().equals(id)) {
                 UserProfile profile = user.getProfile();
@@ -231,7 +231,7 @@ public class Facade {
                         profile.setMoro(valor);
                         break;
                     default:
-                        throw new UserCreationException("Atributo inválido.");
+                        throw new ProfileEditException("Atributo inválido.");
                 }
 
                 // Salva os dados após a atualização
@@ -240,7 +240,7 @@ public class Facade {
             }
         }
 
-        throw new UserCreationException("Usuário não cadastrado.");
+        throw new ProfileEditException("Usuário não cadastrado.");
     }
 
     // Métodos de amigos
@@ -299,6 +299,33 @@ public class Facade {
         String listaAmigos = ("{" + String.join(",", amigos) + "}");
 
         return listaAmigos;
+    }
+
+    public void enviarRecado(String loginUsuario, String loginRecado, String recado) throws UserCreationException, SendMessageException {
+        if(loginUsuario.equals(loginRecado)) {
+            throw new SendMessageException("Usuário não pode enviar recado para si mesmo.");
+        }
+
+        User user = findUserByLogin(loginUsuario);
+        User destinatario = findUserByLogin(loginRecado);
+
+        destinatario.getProfile().getRecados().offer(recado);
+
+        saveData();
+
+    }
+
+    public String lerRecado(String loginUsuario) throws UserCreationException, SendMessageException {
+
+        User user = findUserByLogin(loginUsuario);
+        if(user.getProfile().getRecados().isEmpty()) {
+            throw new SendMessageException("Não há recados.");
+        }
+
+        String recado = user.getProfile().getRecados().poll();
+
+        saveData();
+        return recado;
     }
 
 
