@@ -12,7 +12,8 @@ import java.util.List;
 
 public class SessionDAO {
 
-    private static final String SESSIONS_FILE = "database/sessions.xml";
+    private static final String DIRECTORY = "database";
+    private static final String SESSIONS_FILE = DIRECTORY + "/sessions.xml";
 
     /**
      * Salva a lista de sessões em um arquivo.
@@ -20,6 +21,11 @@ public class SessionDAO {
      * @param sessions Lista de sessões a serem salvas.
      */
     public void save(List<String> sessions) {
+        File dir = new File(DIRECTORY);
+        if (!dir.exists()) {
+            dir.mkdirs(); // Cria a pasta caso não exista
+        }
+
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(SESSIONS_FILE))) {
             out.writeObject(sessions);
         } catch (IOException e) {

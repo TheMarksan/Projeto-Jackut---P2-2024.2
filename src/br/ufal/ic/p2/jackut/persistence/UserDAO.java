@@ -14,7 +14,8 @@ import java.util.List;
 
 public class UserDAO {
 
-    private static final String USERS_FILE = "database/users.xml";
+    private static final String DIRECTORY = "database";
+    private static final String USERS_FILE = DIRECTORY + "/users.xml";
 
     /**
      * Salva a lista de usuários em um arquivo.
@@ -22,6 +23,11 @@ public class UserDAO {
      * @param users Lista de usuários a serem salvos.
      */
     public void save(List<User> users) {
+        File dir = new File(DIRECTORY);
+        if (!dir.exists()) {
+            dir.mkdirs(); // Cria a pasta caso não exista
+        }
+
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(USERS_FILE))) {
             out.writeObject(users);
         } catch (IOException e) {

@@ -1,3 +1,10 @@
+/**
+ * F
+ *
+ * @author MarcosMelo
+ * @version 1.0
+ */
+
 package br.ufal.ic.p2.jackut.models;
 
 import java.io.Serializable;
