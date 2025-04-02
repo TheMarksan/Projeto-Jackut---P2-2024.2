@@ -7,7 +7,7 @@
  */
 
 
-package br.ufal.ic.p2.jackut.exceptions;
+package br.ufal.ic.p2.jackut.exceptions.Profile;
 
 public class ProfileEditException extends Exception {
     /**

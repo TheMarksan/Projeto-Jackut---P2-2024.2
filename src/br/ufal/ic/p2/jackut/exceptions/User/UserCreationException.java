@@ -5,7 +5,7 @@
  * @author SeuNome
  * @version 1.0
  */
-package br.ufal.ic.p2.jackut.exceptions;
+package br.ufal.ic.p2.jackut.exceptions.User;
 
 public class UserCreationException extends Exception {
 

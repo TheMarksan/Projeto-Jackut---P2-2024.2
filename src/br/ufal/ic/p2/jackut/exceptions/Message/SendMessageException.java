@@ -1,4 +1,4 @@
-package br.ufal.ic.p2.jackut.exceptions;
+package br.ufal.ic.p2.jackut.exceptions.Message;
 
 public class SendMessageException extends Exception {
     public SendMessageException(String message) {

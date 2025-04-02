@@ -1,0 +1,9 @@
+unnamed package
+br.ufal.ic.p2.jackut
+br.ufal.ic.p2.jackut.exceptions.Friendship
+br.ufal.ic.p2.jackut.exceptions.Message
+br.ufal.ic.p2.jackut.exceptions.Profile
+br.ufal.ic.p2.jackut.exceptions.Session
+br.ufal.ic.p2.jackut.exceptions.User
+br.ufal.ic.p2.jackut.models
+br.ufal.ic.p2.jackut.persistence

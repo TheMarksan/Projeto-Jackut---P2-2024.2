@@ -5,26 +5,23 @@
  * @author MarcosMelo
  * @version 1.0
  */
-package br.ufal.ic.p2.jackut.exceptions;
+package br.ufal.ic.p2.jackut.exceptions.Session;
 
 public class SessionOpeningException extends Exception {
 
     /**
      * Construtor da exceção com uma mensagem específica.
      *
-     * @param message A mensagem de erro detalhando o problema.
      */
-    public SessionOpeningException(String message) {
-        super(message);
+    public SessionOpeningException() {
+        super("Login ou senha inválidos.");
     }
-
     /**
      * Construtor da exceção com uma mensagem e uma causa específica.
      *
      * @param message A mensagem de erro detalhando o problema.
-     * @param cause A causa raiz da exceção.
      */
-    public SessionOpeningException(String message, Throwable cause) {
-        super(message, cause);
+    public SessionOpeningException(String message) {
+        super(message);
     }
 }

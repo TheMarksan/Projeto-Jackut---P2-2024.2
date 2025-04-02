@@ -1,341 +1,173 @@
 /**
- * Fachada do sistema Jackut, respons√°vel por gerenciar usu√°rios e sess√µes.
- * Fornece m√©todos para criar usu√°rios, abrir sess√µes, recuperar atributos e editar perfil.
+ * Fachada principal do sistema Jackut que fornece a interface p˙blica para interaÁ„o com o sistema.
+ * Atua como um ponto ˙nico de acesso para todas as operaÁıes do sistema.
  *
  * @author MarcosMelo
  * @version 1.0
  */
 package br.ufal.ic.p2.jackut;
 
-import br.ufal.ic.p2.jackut.models.User;
-import br.ufal.ic.p2.jackut.models.UserProfile;
-import br.ufal.ic.p2.jackut.persistence.UserDAO;
-import br.ufal.ic.p2.jackut.persistence.SessionDAO;
-import br.ufal.ic.p2.jackut.exceptions.*;
+import br.ufal.ic.p2.jackut.exceptions.Friendship.*;
+import br.ufal.ic.p2.jackut.exceptions.Message.*;
+import br.ufal.ic.p2.jackut.exceptions.Profile.*;
+import br.ufal.ic.p2.jackut.exceptions.Session.*;
+import br.ufal.ic.p2.jackut.exceptions.User.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Facade {
-    private UserDAO userDAO;
-    private SessionDAO sessionDAO;
-
-    public List<User> users;
-    public List<String> sessions;
+    private final Sistema sistema;
 
     /**
-     * Construtor da fachada. Inicializa DAOs e carrega dados persistidos.
+     * Construtor que inicializa a fachada criando uma nova inst‚ncia do sistema.
      */
     public Facade() {
-        userDAO = new UserDAO();
-        sessionDAO = new SessionDAO();
-
-        // Carregar os dados de usu√°rios e sess√µes
-        this.users = userDAO.load();
-        this.sessions = sessionDAO.load();
-
-        // Se os dados n√£o existirem, inicializa listas vazias
-        if (users == null) users = new ArrayList<>();
-        if (sessions == null) sessions = new ArrayList<>();
+        this.sistema = new Sistema();
     }
 
     /**
-     * Zera o sistema, removendo todos os usu√°rios e sess√µes.
+     * Reinicia o sistema removendo todos os usu·rios e sessıes.
      */
     public void zerarSistema() {
-        this.users = new ArrayList<>();
-        this.sessions = new ArrayList<>();
-        saveData();
+        sistema.zerarSistema();
     }
 
     /**
-     * Obt√©m um atributo espec√≠fico de um usu√°rio pelo login.
+     * ObtÈm o valor de um atributo especÌfico do usu·rio.
      *
-     * @param login O login do usu√°rio.
-     * @param atributo O atributo a ser recuperado ("nome", "login", "descricao", "estadoCivil", etc).
-     * @return O valor do atributo solicitado ou "Atributo n√£o preenchido." se estiver vazio.
-     * @throws UserCreationException Se o usu√°rio n√£o for encontrado ou o atributo for inv√°lido.
+     * @param login Login do usu·rio
+     * @param atributo Atributo a ser consultado
+     * @return Valor do atributo solicitado
+     * @throws UserNotFoundException Se o usu·rio n„o for encontrado
+     * @throws AttributeNotSetException Se o atributo n„o estiver definido
+     * @throws InvalidAttributeException Se o atributo n„o existir
      */
-    public String getAtributoUsuario(String login, String atributo) throws UserCreationException {
-        for (User user : this.users) {
-            if (user.getName().equals(login)) {
-                if (user.getProfile() == null) {
-                    throw new UserCreationException("Atributo n√£o preenchido.");
-                }
-
-                if (!user.getProfile().isAtributoPreenchido(atributo)) {
-                    throw new UserCreationException("Atributo n√£o preenchido.");
-                }
-
-                switch (atributo) {
-                    case "nome":
-                        return user.getLogin();
-                    case "login":
-                        return user.getName();
-                    case "descricao":
-                        return user.getProfile().getDescricao();
-                    case "estadoCivil":
-                        return user.getProfile().getEstadoCivil();
-                    case "aniversario":
-                        return user.getProfile().getAniversario();
-                    case "filhos":
-                        return user.getProfile().getFilhos();
-                    case "idiomas":
-                        return user.getProfile().getIdiomas();
-                    case "cidadeNatal":
-                        return user.getProfile().getCidadeNatal();
-                    case "estilo":
-                        return user.getProfile().getEstilo();
-                    case "fumo":
-                        return user.getProfile().getFumo();
-                    case "bebo":
-                        return user.getProfile().getBebo();
-                    case "moro":
-                        return user.getProfile().getMoro();
-                    default:
-                        throw new UserCreationException("Atributo inv√°lido.");
-                }
-            }
-        }
-        throw new UserCreationException("Usu√°rio n√£o cadastrado.");
+    public String getAtributoUsuario(String login, String atributo)
+            throws UserNotFoundException, AttributeNotSetException, InvalidAttributeException {
+        return sistema.getAtributoUsuario(login, atributo);
     }
 
-
-
-
     /**
-     * Cria um novo usu√°rio no sistema.
+     * Cria um novo usu·rio no sistema.
      *
-     * @param nome O nome do usu√°rio.
-     * @param senha A senha do usu√°rio.
-     * @param login O login do usu√°rio.
-     * @throws UserCreationException Se o login, nome ou senha forem inv√°lidos, ou se o usu√°rio j√° existir.
+     * @param nome Nome completo do usu·rio
+     * @param senha Senha de acesso
+     * @param login Identificador ˙nico
+     * @throws UserCreationException Se os dados forem inv·lidos ou o login j· existir
      */
     public void criarUsuario(String nome, String senha, String login) throws UserCreationException {
-        if (login == null || nome == null) {
-            throw new UserCreationException("Login inv√°lido.");
-        } else if (senha == null) {
-            throw new UserCreationException("Senha inv√°lida.");
-        }
-
-        for (User user : users) {
-            if (user.getName().equals(login) || user.getName().equals(nome)) {
-                throw new UserCreationException("Conta com esse nome j√° existe.");
-            }
-        }
-
-        User user = new User(nome, senha, login);
-        users.add(user);
-        saveData();
+        sistema.criarUsuario(nome, senha, login);
     }
 
     /**
-     * Abre uma sess√£o para um usu√°rio autenticado.
+     * Autentica um usu·rio e inicia uma nova sess„o.
      *
-     * @param login O login do usu√°rio.
-     * @param senha A senha do usu√°rio.
-     * @throws SessionOpeningException Se o login ou senha forem inv√°lidos.
+     * @param login Login do usu·rio
+     * @param senha Senha do usu·rio
+     * @return Login da sess„o criada
+     * @throws SessionOpeningException Se a autenticaÁ„o falhar
      */
     public String abrirSessao(String login, String senha) throws SessionOpeningException {
-        if (login == null || senha == null) {
-            throw new SessionOpeningException("Login ou senha inv√°lidos.");
-        }
-
-        // Verifica se o login j√° est√° em uma sess√£o ativa
-        for (String session : sessions) {
-            if (session.equals(login)) {
-                return login;  // Se j√° houver sess√£o aberta para esse login, retorna o login
-            }
-        }
-
-        // Caso n√£o tenha sess√£o aberta, tenta abrir uma nova
-        for (User user : users) {
-            if (user != null && user.getName().equals(login)) {
-                if (user.getPassword().equals(senha)) {
-                    sessions.add(user.getLogin());  // Adiciona o login √† sess√£o
-                    saveData();
-                    return login;  // Retorna o login do usu√°rio que abriu a sess√£o
-                } else {
-                    throw new SessionOpeningException("Login ou senha inv√°lidos.");
-                }
-            }
-        }
-
-        throw new SessionOpeningException("Login ou senha inv√°lidos.");
+        return sistema.abrirSessao(login, senha);
     }
-
 
     /**
      * Encerra o sistema, salvando os dados atuais.
      */
     public void encerrarSistema() {
-        saveData();
+        sistema.encerrarSistema();
     }
 
     /**
-     * Salva os dados de usu√°rios e sess√µes no sistema de persist√™ncia.
-     */
-    private void saveData() {
-        userDAO.save(users);
-        sessionDAO.save(sessions);
-    }
-
-    /**
-     * Edita o perfil de um usu√°rio.
-     * Permite atualizar informa√ß√µes como descri√ß√£o, estado civil, etc.
+     * Edita um atributo do perfil do usu·rio.
      *
-     * @param id O login do usu√°rio.
-     * @param atributo O atributo que ser√° alterado.
-     * @param valor O valor atribu√≠do.
-     * @throws UserCreationException Se o usu√°rio n√£o for encontrado.
+     * @param id Login do usu·rio
+     * @param atributo Atributo a ser modificado
+     * @param valor Novo valor do atributo
+     * @throws InvalidAttributeException Se o atributo n„o existir
+     * @throws ProfileEditException Se ocorrer erro na ediÁ„o do perfil
+     * @throws UserNotFoundException Se o usu·rio n„o for encontrado
      */
-    public void editarPerfil(String id, String atributo, String valor) throws ProfileEditException {
-        for (User user : this.users) {
-            if (user.getName().equals(id)) {
-                UserProfile profile = user.getProfile();
-                if (profile == null) {
-                    profile = new UserProfile();
-                    user.setProfile(profile);
-                }
-
-                // Atualiza o atributo com o valor fornecido
-                switch (atributo) {
-                    case "descricao":
-                        profile.setDescricao(valor);
-                        break;
-                    case "estadoCivil":
-                        profile.setEstadoCivil(valor);
-                        break;
-                    case "aniversario":
-                        profile.setAniversario(valor);
-                        break;
-                    case "filhos":
-                        profile.setFilhos(valor);
-                        break;
-                    case "idiomas":
-                        profile.setIdiomas(valor);
-                        break;
-                    case "cidadeNatal":
-                        profile.setCidadeNatal(valor);
-                        break;
-                    case "estilo":
-                        profile.setEstilo(valor);
-                        break;
-                    case "fumo":
-                        profile.setFumo(valor);
-                        break;
-                    case "bebo":
-                        profile.setBebo(valor);
-                        break;
-                    case "moro":
-                        profile.setMoro(valor);
-                        break;
-                    default:
-                        throw new ProfileEditException("Atributo inv√°lido.");
-                }
-
-                // Salva os dados ap√≥s a atualiza√ß√£o
-                saveData();
-                return;
-            }
+    public void editarPerfil(String id, String atributo, String valor)
+            throws InvalidAttributeException, ProfileEditException, UserNotFoundException {
+        try {
+            sistema.editarPerfil(id, atributo, valor);
+        } catch (Exception e) {
+            throw new ProfileEditException(e.getMessage());
         }
-
-        throw new ProfileEditException("Usu√°rio n√£o cadastrado.");
     }
 
-    // M√©todos de amigos
-
-    public void adicionarAmigo(String loginUsuario, String loginAmigo) throws UserCreationException, FriendshipException {
-        User user = findUserByLogin(loginUsuario);
-        User amigo = findUserByLogin(loginAmigo);
-
-        if (loginUsuario.equals(loginAmigo)) {
-            throw new FriendshipException("Usu√°rio n√£o pode adicionar a si mesmo como amigo.");
-        }
-
-        if (user.getProfile().getAmigosPendentes().contains(loginAmigo)) {
-            throw new FriendshipException("Usu√°rio j√° est√° adicionado como amigo, esperando aceita√ß√£o do convite.");
-        }
-
-        if (user.getProfile().getAmigos().contains(loginAmigo)) {
-            throw new FriendshipException("Usu√°rio j√° est√° adicionado como amigo.");
-        }
-
-        if (amigo.getProfile().getAmigosPendentes().contains(loginUsuario)) {
-            user.getProfile().getAmigos().add(loginAmigo);
-            amigo.getProfile().getAmigos().add(loginUsuario);
-            amigo.getProfile().getAmigosPendentes().remove(loginUsuario);
-            user.getProfile().getAmigosPendentes().remove(loginAmigo);
-        } else {
-            user.getProfile().getAmigosPendentes().add(loginAmigo);
-        }
-
-        saveData();
+    /**
+     * Adiciona um amigo para o usu·rio.
+     *
+     * @param loginUsuario Login do usu·rio que est· adicionando
+     * @param loginAmigo Login do amigo a ser adicionado
+     * @throws UserNotFoundException Se algum usu·rio n„o for encontrado
+     * @throws FriendshipException Se j· forem amigos ou houver solicitaÁ„o pendente
+     */
+    public void adicionarAmigo(String loginUsuario, String loginAmigo)
+            throws UserNotFoundException, FriendshipException {
+        sistema.adicionarAmigo(loginUsuario, loginAmigo);
     }
 
-    public void removerAmigo(String loginUsuario, String loginAmigo) throws UserCreationException, FriendshipException {
-        User user = findUserByLogin(loginUsuario);
-        User amigo = findUserByLogin(loginAmigo);
-
-        if (!user.getProfile().getAmigos().contains(loginAmigo)) {
-            throw new FriendshipException("Usu√°rio n√£o est√° na sua lista de amigos.");
-        }
-
-        user.getProfile().getAmigos().remove(loginAmigo);
-        amigo.getProfile().getAmigos().remove(loginUsuario);
-        saveData();
+    /**
+     * Remove um amigo da lista de amigos do usu·rio.
+     *
+     * @param loginUsuario Login do usu·rio
+     * @param loginAmigo Login do amigo a ser removido
+     * @throws UserNotFoundException Se algum usu·rio n„o for encontrado
+     * @throws FriendshipException Se n„o forem amigos
+     */
+    public void removerAmigo(String loginUsuario, String loginAmigo)
+            throws UserNotFoundException, FriendshipException {
+        sistema.removerAmigo(loginUsuario, loginAmigo);
     }
 
-    public boolean ehAmigo(String loginUsuario, String loginAmigo) throws UserCreationException {
-        User user = findUserByLogin(loginUsuario);
-        return user.getProfile().getAmigos().contains(loginAmigo);
+    /**
+     * Verifica se dois usu·rios s„o amigos.
+     *
+     * @param loginUsuario Login do primeiro usu·rio
+     * @param loginAmigo Login do segundo usu·rio
+     * @return true se forem amigos, false caso contr·rio
+     * @throws UserNotFoundException Se algum usu·rio n„o for encontrado
+     */
+    public boolean ehAmigo(String loginUsuario, String loginAmigo) throws UserNotFoundException {
+        return sistema.ehAmigo(loginUsuario, loginAmigo);
     }
 
-    public String getAmigos(String login) throws UserCreationException {
-        User user = findUserByLogin(login);
-        List<String> amigos = user.getProfile().getAmigos();
-
-        // Printar no formato desejado
-        String listaAmigos = ("{" + String.join(",", amigos) + "}");
-
-        return listaAmigos;
+    /**
+     * ObtÈm a lista de amigos de um usu·rio formatada.
+     *
+     * @param login Login do usu·rio
+     * @return String formatada com a lista de amigos
+     * @throws UserNotFoundException Se o usu·rio n„o for encontrado
+     */
+    public String getAmigos(String login) throws UserNotFoundException {
+        return sistema.getAmigos(login);
     }
 
-    public void enviarRecado(String loginUsuario, String loginRecado, String recado) throws UserCreationException, SendMessageException {
-        if(loginUsuario.equals(loginRecado)) {
-            throw new SendMessageException("Usu√°rio n√£o pode enviar recado para si mesmo.");
-        }
-
-        User user = findUserByLogin(loginUsuario);
-        User destinatario = findUserByLogin(loginRecado);
-
-        destinatario.getProfile().getRecados().offer(recado);
-
-        saveData();
-
+    /**
+     * Envia um recado para outro usu·rio.
+     *
+     * @param loginUsuario Login do remetente
+     * @param loginRecado Login do destinat·rio
+     * @param recado Conte˙do do recado
+     * @throws UserNotFoundException Se algum usu·rio n„o for encontrado
+     * @throws SelfMessageException Se tentar enviar recado para si mesmo
+     */
+    public void enviarRecado(String loginUsuario, String loginRecado, String recado)
+            throws UserNotFoundException, SelfMessageException {
+        sistema.enviarRecado(loginUsuario, loginRecado, recado);
     }
 
-    public String lerRecado(String loginUsuario) throws UserCreationException, SendMessageException {
-
-        User user = findUserByLogin(loginUsuario);
-        if(user.getProfile().getRecados().isEmpty()) {
-            throw new SendMessageException("N√£o h√° recados.");
-        }
-
-        String recado = user.getProfile().getRecados().poll();
-
-        saveData();
-        return recado;
+    /**
+     * LÍ o prÛximo recado n„o lido do usu·rio.
+     *
+     * @param loginUsuario Login do usu·rio
+     * @return Conte˙do do recado
+     * @throws UserNotFoundException Se o usu·rio n„o for encontrado
+     * @throws EmptyMessagesException Se n„o houver mensagens para ler
+     */
+    public String lerRecado(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
+        return sistema.lerRecado(loginUsuario);
     }
-
-
-    private User findUserByLogin(String login) throws UserCreationException {
-        for (User user : users) {
-            if (user.getName().equals(login)) {
-                return user;
-            }
-        }
-        throw new UserCreationException("Usu√°rio n√£o cadastrado.");
-    }
-
 }
