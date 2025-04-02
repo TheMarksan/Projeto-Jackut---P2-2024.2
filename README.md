@@ -1,6 +1,6 @@
 # 🚀 Jackut 0.5 - Orkut cafeínado
 
-Jackut é uma plataforma de rede social 🎭 inspirada no conceito de interações entre usuários, permitindo criar perfis, enviar recados 📩 e gerenciar amizades 🤝. O sistema foca na gestão de sessões e armazenamento de dados utilizando classes DAO.
+Jackut é uma plataforma de rede social inspirada no conceito de interações entre usuários, permitindo criar perfis, enviar recados e gerenciar amizades. O sistema foca na gestão de sessões e armazenamento de dados utilizando classes DAO.
 
 ---
 
@@ -56,11 +56,11 @@ O projeto está organizado nas seguintes classes:
 ---
 
 ## 🚀 Funcionalidades Principais
-✅ Cadastro e login de usuários 👤🔑  
-✅ Envio e leitura de recados 📩  
-✅ Gerenciamento de sessões 🖥️  
-✅ Sistema de amizades 🤝  
-✅ Edição de perfil e atributos personalizados 🛠️
+✅ Cadastro e login de usuários  
+✅ Envio e leitura de recados   
+✅ Gerenciamento de sessões   
+✅ Sistema de amizades   
+✅ Edição de perfil e atributos personalizados 
 
 
 ---
