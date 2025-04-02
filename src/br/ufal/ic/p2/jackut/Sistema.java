@@ -128,6 +128,15 @@ public class Sistema {
      * @throws InvalidAttributeException Se o atributo não existir
      * @throws UserNotFoundException Se o usuário não for encontrado
      */
+    /**
+     * Edita um atributo do perfil do usuário.
+     *
+     * @param id Login do usuário
+     * @param atributo Atributo a ser modificado
+     * @param valor Novo valor do atributo
+     * @throws InvalidAttributeException Se o atributo não existir
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
     public void editarPerfil(String id, String atributo, String valor) throws InvalidAttributeException, UserNotFoundException {
         User user = findUserByLogin(id);
         UserProfile profile = user.getProfile();
@@ -137,18 +146,8 @@ public class Sistema {
             user.setProfile(profile);
         }
 
-        switch (atributo) {
-            case "descricao": profile.setDescricao(valor); break;
-            case "estadoCivil": profile.setEstadoCivil(valor); break;
-            case "aniversario": profile.setAniversario(valor); break;
-            case "filhos": profile.setFilhos(valor); break;
-            case "idiomas": profile.setIdiomas(valor); break;
-            case "cidadeNatal": profile.setCidadeNatal(valor); break;
-            case "estilo": profile.setEstilo(valor); break;
-            case "fumo": profile.setFumo(valor); break;
-            case "bebo": profile.setBebo(valor); break;
-            case "moro": profile.setMoro(valor); break;
-            default: throw new InvalidAttributeException();
+        if (!profile.setAtributo(atributo, valor)) {
+            throw new InvalidAttributeException();
         }
         saveData();
     }
@@ -165,30 +164,25 @@ public class Sistema {
      */
     public String getAtributoUsuario(String login, String atributo)
             throws UserNotFoundException, AttributeNotSetException, InvalidAttributeException {
+
         User user = findUserByLogin(login);
-        if (user.getProfile() == null) {
-            throw new AttributeNotSetException();
-        }
+        UserProfile profile = user.getProfile();
 
-        if (!user.getProfile().isAtributoPreenchido(atributo)) {
-            throw new AttributeNotSetException();
-        }
-
+        // Atributos que não dependem do perfil
         switch (atributo) {
             case "nome": return user.getLogin();
             case "login": return user.getName();
-            case "descricao": return user.getProfile().getDescricao();
-            case "estadoCivil": return user.getProfile().getEstadoCivil();
-            case "aniversario": return user.getProfile().getAniversario();
-            case "filhos": return user.getProfile().getFilhos();
-            case "idiomas": return user.getProfile().getIdiomas();
-            case "cidadeNatal": return user.getProfile().getCidadeNatal();
-            case "estilo": return user.getProfile().getEstilo();
-            case "fumo": return user.getProfile().getFumo();
-            case "bebo": return user.getProfile().getBebo();
-            case "moro": return user.getProfile().getMoro();
-            default: throw new InvalidAttributeException();
         }
+
+        if (profile == null || !profile.isAtributoPreenchido(atributo)) {
+            throw new AttributeNotSetException();
+        }
+
+        String valor = profile.getAtributo(atributo);
+        if (valor == null) {
+            throw new InvalidAttributeException();
+        }
+        return valor;
     }
 
     /**

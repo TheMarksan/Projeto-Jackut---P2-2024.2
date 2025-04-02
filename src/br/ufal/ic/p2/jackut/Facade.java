@@ -1,10 +1,3 @@
-/**
- * Fachada principal do sistema Jackut que fornece a interface pública para interação com o sistema.
- * Atua como um ponto único de acesso para todas as operações do sistema.
- *
- * @author MarcosMelo
- * @version 1.0
- */
 package br.ufal.ic.p2.jackut;
 
 import br.ufal.ic.p2.jackut.exceptions.Friendship.*;
@@ -13,7 +6,13 @@ import br.ufal.ic.p2.jackut.exceptions.Profile.*;
 import br.ufal.ic.p2.jackut.exceptions.Session.*;
 import br.ufal.ic.p2.jackut.exceptions.User.*;
 
-
+/**
+ * Fachada principal do sistema Jackut que fornece a interface pública para interação com o sistema.
+ * Atua como um ponto único de acesso para todas as operações do sistema.
+ *
+ * @author MarcosMelo
+ * @version 1.0
+ */
 public class Facade {
     private final Sistema sistema;
 
