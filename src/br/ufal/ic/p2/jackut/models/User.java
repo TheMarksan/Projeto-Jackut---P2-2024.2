@@ -102,4 +102,9 @@ public class User implements Serializable {
     public void setProfile(UserProfile profile) {
         this.profile = profile;
     }
+
+    @Override
+    public String toString() {
+        return this.getName();
+    }
 }

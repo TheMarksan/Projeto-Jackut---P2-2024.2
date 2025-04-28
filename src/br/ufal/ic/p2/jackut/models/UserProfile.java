@@ -19,8 +19,9 @@ public class UserProfile implements Serializable {
     // Lista de amigos
     private List<String> amigos;
     private List<String> amigosPendentes;
-    private Queue<String> recados;
-    private List<String> recadosLidos;
+    private Queue<Note> recados;
+    private List<Note> recadosLidos;
+    private List<Community> comunidadesParticipante, comunidadesDono;
 
     /**
      * Construtor da classe UserProfile.
@@ -32,6 +33,8 @@ public class UserProfile implements Serializable {
         this.amigosPendentes = new ArrayList<>();
         this.recados = new LinkedList<>();
         this.recadosLidos = new ArrayList<>();
+        this.comunidadesParticipante = new ArrayList<>();
+        this.comunidadesDono = new ArrayList<>();
     }
 
     /**
@@ -112,7 +115,7 @@ public class UserProfile implements Serializable {
      *
      * @return Lista de recados lidos.
      */
-    public List<String> getRecadosLidos() {
+    public List<Note> getRecadosLidos() {
         return recadosLidos;
     }
 
@@ -121,7 +124,23 @@ public class UserProfile implements Serializable {
      *
      * @return Fila de recados não lidos.
      */
-    public Queue<String> getRecados() {
+    public Queue<Note> getRecados() {
         return recados;
+    }
+
+    public void setDonoComunidades(Community comunidade) {
+        if(this.comunidadesDono.contains(comunidade)){
+            return;
+        }
+        this.comunidadesDono.add(comunidade);
+    }
+
+    public void setParticipanteComunidade(Community comunidade) {
+        if (this.comunidadesParticipante.contains(comunidade)) {
+            return;
+        }
+
+        this.comunidadesParticipante.add(comunidade);
+
     }
 }

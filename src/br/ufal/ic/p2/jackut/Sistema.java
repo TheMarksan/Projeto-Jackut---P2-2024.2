@@ -1,12 +1,14 @@
 /**
  * Classe principal que implementa a lógica de negócios do sistema Jackut.
- * Responsável por gerenciar usuários, sessões, amizades e mensagens.
+ * Implementa o padrão Singleton para garantir uma única instância.
  *
  * @author MarcosMelo
- * @version 1.0
+ * @version 1.1 (com Singleton Pattern)
  */
 package br.ufal.ic.p2.jackut;
 
+import br.ufal.ic.p2.jackut.Utils.GlobalFormatter;
+import br.ufal.ic.p2.jackut.exceptions.Community.CommunityCreationException;
 import br.ufal.ic.p2.jackut.exceptions.Friendship.*;
 import br.ufal.ic.p2.jackut.exceptions.Message.*;
 import br.ufal.ic.p2.jackut.exceptions.Profile.*;
@@ -18,15 +20,19 @@ import br.ufal.ic.p2.jackut.persistence.*;
 import java.util.*;
 
 public class Sistema {
+    // Instância única do Singleton
+    private static Sistema instance;
+
     private final UserDAO userDAO;
     private final SessionDAO sessionDAO;
     private List<User> users;
     private List<String> sessions;
+    private Map<String, Community> communities;
 
     /**
-     * Construtor que inicializa o sistema carregando os dados persistidos.
+     * Construtor privado para prevenir instanciação externa.
      */
-    public Sistema() {
+    private Sistema() {
         this.userDAO = new UserDAO();
         this.sessionDAO = new SessionDAO();
         this.users = userDAO.load();
@@ -34,6 +40,26 @@ public class Sistema {
 
         if (users == null) users = new ArrayList<>();
         if (sessions == null) sessions = new ArrayList<>();
+        if (communities == null) communities = new HashMap<>();
+    }
+
+    /**
+     * Método estático para obter a instância única do Sistema.
+     *
+     * @return A instância única do Sistema
+     */
+    public static synchronized Sistema getInstance() {
+        if (instance == null) {
+            instance = new Sistema();
+        }
+        return instance;
+    }
+
+    /**
+     * Método para reiniciar a instância única (útil para testes).
+     */
+    public static synchronized void resetInstance() {
+        instance = new Sistema();
     }
 
     /**
@@ -58,6 +84,7 @@ public class Sistema {
                 return user;
             }
         }
+
         throw new UserNotFoundException();
     }
 
@@ -119,15 +146,6 @@ public class Sistema {
         throw new SessionOpeningException();
     }
 
-    /**
-     * Edita um atributo do perfil do usuário.
-     *
-     * @param id Login do usuário
-     * @param atributo Atributo a ser modificado
-     * @param valor Novo valor do atributo
-     * @throws InvalidAttributeException Se o atributo não existir
-     * @throws UserNotFoundException Se o usuário não for encontrado
-     */
     /**
      * Edita um atributo do perfil do usuário.
      *
@@ -259,7 +277,7 @@ public class Sistema {
      */
     public String getAmigos(String login) throws UserNotFoundException {
         User user = findUserByLogin(login);
-        return "{" + String.join(",", user.getProfile().getAmigos()) + "}";
+        return GlobalFormatter.formatList(user.getProfile().getAmigos());
     }
 
     /**
@@ -277,8 +295,12 @@ public class Sistema {
             throw new SelfMessageException();
         }
 
+
         User destinatario = findUserByLogin(loginRecado);
-        destinatario.getProfile().getRecados().offer(recado);
+        User remetente = findUserByLogin(loginUsuario);
+        Note note = new Note(remetente, destinatario, recado);
+
+        destinatario.getProfile().getRecados().offer(note);
         saveData();
     }
 
@@ -290,33 +312,46 @@ public class Sistema {
      * @throws UserNotFoundException Se o usuário não for encontrado
      * @throws EmptyMessagesException Se não houver mensagens para ler
      */
-    public String lerRecado(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
+    public Note lerRecado(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
         User user = findUserByLogin(loginUsuario);
         if (user.getProfile().getRecados().isEmpty()) {
             throw new EmptyMessagesException();
         }
-        String recado = user.getProfile().getRecados().poll();
+        Note recado = user.getProfile().getRecados().poll();
         saveData();
         return recado;
     }
 
+    public void criarComunidade(String loginUsuario, String nome, String descricao) throws CommunityCreationException, UserNotFoundException {
+        User dono = findUserByLogin(loginUsuario);
+        if(this.communities.containsKey(nome)){
+            throw new CommunityCreationException();
+        }
+
+        Community comunidade = new Community(nome, descricao, dono);
+        this.communities.put(nome, comunidade);
+
+        dono.getProfile().setDonoComunidades(comunidade);
+        dono.getProfile().setParticipanteComunidade(comunidade);
+
+        saveData();
+
+    }
+
     /**
      * Encerra o sistema, persisitindo os dados e limpando a sessão.
+     * Também limpa a instância Singleton.
      */
     public void encerrarSistema() {
         try {
-            // Garante que todos os dados sejam persistidos
             saveData();
-
-            // Limpa as sessões ativas (opcional, dependendo dos requisitos)
             sessions.clear();
-
-            // Log de encerramento (útil para debug)
             System.out.println("Sistema Jackut encerrado com sucesso. Dados persistidos.");
-
         } catch (Exception e) {
             System.err.println("Erro ao encerrar o sistema: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            instance = null; // Limpa a instância Singleton
         }
     }
 

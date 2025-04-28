@@ -1,10 +1,12 @@
 package br.ufal.ic.p2.jackut;
 
+import br.ufal.ic.p2.jackut.exceptions.Community.CommunityCreationException;
 import br.ufal.ic.p2.jackut.exceptions.Friendship.*;
 import br.ufal.ic.p2.jackut.exceptions.Message.*;
 import br.ufal.ic.p2.jackut.exceptions.Profile.*;
 import br.ufal.ic.p2.jackut.exceptions.Session.*;
 import br.ufal.ic.p2.jackut.exceptions.User.*;
+import br.ufal.ic.p2.jackut.models.*;
 
 /**
  * Fachada principal do sistema Jackut que fornece a interface pública para interação com o sistema.
@@ -20,7 +22,7 @@ public class Facade {
      * Construtor que inicializa a fachada criando uma nova instância do sistema.
      */
     public Facade() {
-        this.sistema = new Sistema();
+        this.sistema = Sistema.getInstance();
     }
 
     /**
@@ -166,7 +168,11 @@ public class Facade {
      * @throws UserNotFoundException Se o usuário não for encontrado
      * @throws EmptyMessagesException Se não houver mensagens para ler
      */
-    public String lerRecado(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
+    public Note lerRecado(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
         return sistema.lerRecado(loginUsuario);
+    }
+
+    public void criarComunidade(String loginUsuario, String nome, String descricao) throws CommunityCreationException, UserNotFoundException{
+        sistema.criarComunidade(loginUsuario, nome, descricao);
     }
 }
