@@ -22,10 +22,14 @@ public class UserProfile implements Serializable {
     // Lista de amigos
     private List<String> amigos;
     private List<String> amigosPendentes;
+    private List<User> paqueras;
+    private List<User> fas;
+    private List<User> inimigos;
     private Queue<Note> recados;
     private Queue<Message> mensagens;
     private List<Note> recadosLidos;
     private List<Community> comunidadesParticipante, comunidadesDono;
+
 
     /**
      * Construtor da classe UserProfile.
@@ -34,6 +38,9 @@ public class UserProfile implements Serializable {
     public UserProfile() {
         this.atributos = new HashMap<>();
         this.amigos = new ArrayList<>();
+        this.paqueras = new ArrayList<>();
+        this.fas = new ArrayList<>();
+        this.inimigos = new ArrayList<>();
         this.amigosPendentes = new ArrayList<>();
         this.recados = new LinkedList<>();
         this.recadosLidos = new ArrayList<>();
@@ -160,5 +167,29 @@ public class UserProfile implements Serializable {
     public void setMensagens(Message mensagem) {
         this.mensagens.offer(mensagem);
 
+    }
+
+    public void setPaquera(User paquera) {
+        this.paqueras.add(paquera);
+    }
+
+    public void setFas(User fa) {
+        this.fas.add(fa);
+    }
+
+    public void setInimigos(User inimigo) {
+        this.inimigos.add(inimigo);
+    }
+
+    public List<User> getPaqueras() {
+        return paqueras;
+    }
+
+    public List<User> getFas() {
+        return fas;
+    }
+
+    public List<User> getInimigos() {
+        return inimigos;
     }
 }
