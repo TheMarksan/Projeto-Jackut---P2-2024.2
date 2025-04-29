@@ -1,8 +1,10 @@
 package br.ufal.ic.p2.jackut;
 
 import br.ufal.ic.p2.jackut.exceptions.Community.CommunityCreationException;
+import br.ufal.ic.p2.jackut.exceptions.Community.CommunityNotFoundException;
 import br.ufal.ic.p2.jackut.exceptions.Friendship.*;
-import br.ufal.ic.p2.jackut.exceptions.Message.*;
+import br.ufal.ic.p2.jackut.exceptions.Message.EmptyMessagesException;
+import br.ufal.ic.p2.jackut.exceptions.Note.*;
 import br.ufal.ic.p2.jackut.exceptions.Profile.*;
 import br.ufal.ic.p2.jackut.exceptions.Session.*;
 import br.ufal.ic.p2.jackut.exceptions.User.*;
@@ -153,10 +155,10 @@ public class Facade {
      * @param loginRecado Login do destinatário
      * @param recado Conteúdo do recado
      * @throws UserNotFoundException Se algum usuário não for encontrado
-     * @throws SelfMessageException Se tentar enviar recado para si mesmo
+     * @throws SelfNoteException Se tentar enviar recado para si mesmo
      */
     public void enviarRecado(String loginUsuario, String loginRecado, String recado)
-            throws UserNotFoundException, SelfMessageException {
+            throws UserNotFoundException, SelfNoteException {
         sistema.enviarRecado(loginUsuario, loginRecado, recado);
     }
 
@@ -166,13 +168,42 @@ public class Facade {
      * @param loginUsuario Login do usuário
      * @return Conteúdo do recado
      * @throws UserNotFoundException Se o usuário não for encontrado
-     * @throws EmptyMessagesException Se não houver mensagens para ler
+     * @throws EmptyNotesException Se não houver mensagens para ler
      */
-    public Note lerRecado(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
+    public Note lerRecado(String loginUsuario) throws UserNotFoundException, EmptyNotesException {
         return sistema.lerRecado(loginUsuario);
     }
 
     public void criarComunidade(String loginUsuario, String nome, String descricao) throws CommunityCreationException, UserNotFoundException{
         sistema.criarComunidade(loginUsuario, nome, descricao);
     }
+
+    public String getDescricaoComunidade(String nome) throws CommunityNotFoundException {
+       return sistema.getDescricaoComunidade(nome);
+    }
+
+    public String getDonoComunidade(String nome) throws CommunityNotFoundException {
+        return sistema.getDonoComunidade(nome);
+    }
+
+    public String getMembrosComunidade(String nome) throws CommunityNotFoundException {
+        return sistema.getMembrosComunidade(nome);
+    }
+
+    public void adicionarComunidade(String loginUsuario, String nome) throws CommunityNotFoundException, UserNotFoundException {
+        sistema.adicionarComunidade(loginUsuario, nome);
+    }
+
+    public String getComunidades(String loginUsuario) throws UserNotFoundException {
+        return sistema.getComunidades(loginUsuario);
+    }
+
+    public void enviarMensagem(String loginUsuario, String nome, String mensagem) throws UserNotFoundException, CommunityNotFoundException {
+        sistema.enviarMensagem(loginUsuario, nome, mensagem);
+    }
+
+    public Message lerMensagem(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
+        return sistema.lerMensagem(loginUsuario);
+    }
+
 }

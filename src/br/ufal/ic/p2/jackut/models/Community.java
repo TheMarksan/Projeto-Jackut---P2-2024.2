@@ -35,7 +35,6 @@ public class Community implements Serializable {
     }
 
 
-
     public void addMember(User user) {
         members.add(user);
     }
@@ -46,6 +45,12 @@ public class Community implements Serializable {
     public void setMembers(ArrayList<User> members) {
         this.members.clear();
         this.members.addAll(members);
+    }
+
+    public void sendMessage(Message message) {
+        for (User member : members) {
+            member.getProfile().setMensagens(message);
+        }
     }
 
     @Override

@@ -7,6 +7,9 @@
  */
 package br.ufal.ic.p2.jackut.models;
 
+import br.ufal.ic.p2.jackut.exceptions.Community.CommunityCreationException;
+import br.ufal.ic.p2.jackut.exceptions.Community.UserAlreadyMemberException;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -20,6 +23,7 @@ public class UserProfile implements Serializable {
     private List<String> amigos;
     private List<String> amigosPendentes;
     private Queue<Note> recados;
+    private Queue<Message> mensagens;
     private List<Note> recadosLidos;
     private List<Community> comunidadesParticipante, comunidadesDono;
 
@@ -35,6 +39,7 @@ public class UserProfile implements Serializable {
         this.recadosLidos = new ArrayList<>();
         this.comunidadesParticipante = new ArrayList<>();
         this.comunidadesDono = new ArrayList<>();
+        this.mensagens = new LinkedList<>();
     }
 
     /**
@@ -135,12 +140,25 @@ public class UserProfile implements Serializable {
         this.comunidadesDono.add(comunidade);
     }
 
-    public void setParticipanteComunidade(Community comunidade) {
+    public void setParticipanteComunidade(Community comunidade) throws UserAlreadyMemberException {
         if (this.comunidadesParticipante.contains(comunidade)) {
-            return;
+            throw new UserAlreadyMemberException();
         }
 
         this.comunidadesParticipante.add(comunidade);
+
+    }
+
+    public List<Community> getComunidadesParticipante() {
+        return comunidadesParticipante;
+    }
+
+    public Queue<Message> getMensagens() {
+        return mensagens;
+    }
+
+    public void setMensagens(Message mensagem) {
+        this.mensagens.offer(mensagem);
 
     }
 }

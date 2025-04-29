@@ -9,8 +9,10 @@ package br.ufal.ic.p2.jackut;
 
 import br.ufal.ic.p2.jackut.Utils.GlobalFormatter;
 import br.ufal.ic.p2.jackut.exceptions.Community.CommunityCreationException;
+import br.ufal.ic.p2.jackut.exceptions.Community.CommunityNotFoundException;
 import br.ufal.ic.p2.jackut.exceptions.Friendship.*;
-import br.ufal.ic.p2.jackut.exceptions.Message.*;
+import br.ufal.ic.p2.jackut.exceptions.Message.EmptyMessagesException;
+import br.ufal.ic.p2.jackut.exceptions.Note.*;
 import br.ufal.ic.p2.jackut.exceptions.Profile.*;
 import br.ufal.ic.p2.jackut.exceptions.Session.*;
 import br.ufal.ic.p2.jackut.exceptions.User.*;
@@ -25,6 +27,7 @@ public class Sistema {
 
     private final UserDAO userDAO;
     private final SessionDAO sessionDAO;
+    private final CommunityDAO communityDAO;
     private List<User> users;
     private List<String> sessions;
     private Map<String, Community> communities;
@@ -35,8 +38,10 @@ public class Sistema {
     private Sistema() {
         this.userDAO = new UserDAO();
         this.sessionDAO = new SessionDAO();
+        this.communityDAO = new CommunityDAO();
         this.users = userDAO.load();
         this.sessions = sessionDAO.load();
+        this.communities = communityDAO.load();
 
         if (users == null) users = new ArrayList<>();
         if (sessions == null) sessions = new ArrayList<>();
@@ -68,6 +73,7 @@ public class Sistema {
     public void zerarSistema() {
         this.users = new ArrayList<>();
         this.sessions = new ArrayList<>();
+        this.communities = new HashMap<>();
         saveData();
     }
 
@@ -287,12 +293,12 @@ public class Sistema {
      * @param loginRecado Login do destinatário
      * @param recado Conteúdo do recado
      * @throws UserNotFoundException Se algum usuário não for encontrado
-     * @throws SelfMessageException Se tentar enviar recado para si mesmo
+     * @throws SelfNoteException Se tentar enviar recado para si mesmo
      */
     public void enviarRecado(String loginUsuario, String loginRecado, String recado)
-            throws UserNotFoundException, SelfMessageException {
+            throws UserNotFoundException, SelfNoteException {
         if (loginUsuario.equals(loginRecado)) {
-            throw new SelfMessageException();
+            throw new SelfNoteException();
         }
 
 
@@ -310,12 +316,12 @@ public class Sistema {
      * @param loginUsuario Login do usuário
      * @return Conteúdo do recado
      * @throws UserNotFoundException Se o usuário não for encontrado
-     * @throws EmptyMessagesException Se não houver mensagens para ler
+     * @throws EmptyNotesException Se não houver mensagens para ler
      */
-    public Note lerRecado(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
+    public Note lerRecado(String loginUsuario) throws UserNotFoundException, EmptyNotesException {
         User user = findUserByLogin(loginUsuario);
         if (user.getProfile().getRecados().isEmpty()) {
-            throw new EmptyMessagesException();
+            throw new EmptyNotesException();
         }
         Note recado = user.getProfile().getRecados().poll();
         saveData();
@@ -333,11 +339,75 @@ public class Sistema {
 
         dono.getProfile().setDonoComunidades(comunidade);
         dono.getProfile().setParticipanteComunidade(comunidade);
+        comunidade.addMember(dono);
 
         saveData();
 
     }
 
+    public String getDescricaoComunidade(String nome) throws CommunityNotFoundException {
+        if(!this.communities.containsKey(nome)){
+            throw new CommunityNotFoundException();
+        }
+
+        return communities.get(nome).getDescription();
+    }
+
+    public String getDonoComunidade(String nome) throws CommunityNotFoundException {
+        if(!this.communities.containsKey(nome)){
+            throw new CommunityNotFoundException();
+        }
+
+        return communities.get(nome).getOwner().getName();
+    }
+
+    public String getMembrosComunidade(String nome) throws CommunityNotFoundException {
+        if(!this.communities.containsKey(nome)){
+            throw new CommunityNotFoundException();
+        }
+
+        return communities.get(nome).getMembers();
+    }
+
+    public void adicionarComunidade(String loginUsuario, String nome) throws CommunityNotFoundException, UserNotFoundException {
+        User user = findUserByLogin(loginUsuario);
+        if(!this.communities.containsKey(nome)){
+            throw new CommunityNotFoundException();
+        }
+
+        user.getProfile().setParticipanteComunidade(this.communities.get(nome));
+        this.communities.get(nome).addMember(user);
+
+        saveData();
+    }
+
+    public String getComunidades(String loginUsuario) throws UserNotFoundException {
+        User user = findUserByLogin(loginUsuario);
+        return GlobalFormatter.formatList(user.getProfile().getComunidadesParticipante());
+    }
+
+    public void enviarMensagem(String loginUsuario, String nome, String mensagem) throws UserNotFoundException, CommunityNotFoundException {
+        User user = findUserByLogin(loginUsuario);
+        if(!this.communities.containsKey(nome)){
+            throw new CommunityNotFoundException();
+        }
+
+        Message message = new Message(user, communities.get(nome), mensagem);
+
+        this.communities.get(nome).sendMessage(message);
+
+        saveData();
+    }
+
+    public Message lerMensagem(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
+        User user = findUserByLogin(loginUsuario);
+        if(user.getProfile().getMensagens().isEmpty()){
+            throw new EmptyMessagesException();
+        }
+        Message mensagem = user.getProfile().getMensagens().poll();
+        saveData();
+        return mensagem;
+    }
     /**
      * Encerra o sistema, persisitindo os dados e limpando a sessão.
      * Também limpa a instância Singleton.
@@ -361,5 +431,6 @@ public class Sistema {
     private void saveData() {
         userDAO.save(users);
         sessionDAO.save(sessions);
+        communityDAO.save(communities);
     }
 }
