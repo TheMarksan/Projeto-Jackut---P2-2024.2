@@ -332,6 +332,16 @@ public class Sistema {
         return recado;
     }
 
+    /**
+     * Cria uma nova comunidade no sistema com o nome e descrição especificados,
+     * associando o usuário informado como dono e primeiro membro.
+     *
+     * @param loginUsuario Login do usuário que será o dono da comunidade
+     * @param nome Nome da comunidade a ser criada (deve ser único)
+     * @param descricao Descrição da comunidade
+     * @throws CommunityCreationException Se já existir uma comunidade com o mesmo nome
+     * @throws UserNotFoundException Se o usuário dono não for encontrado
+     */
     public void criarComunidade(String loginUsuario, String nome, String descricao) throws CommunityCreationException, UserNotFoundException {
         User dono = findUserByLogin(loginUsuario);
         if(this.communities.containsKey(nome)){
@@ -346,33 +356,58 @@ public class Sistema {
         comunidade.addMember(dono);
 
         saveData();
-
     }
 
+    /**
+     * Recupera a descrição de uma comunidade existente.
+     *
+     * @param nome Nome da comunidade buscada
+     * @return String com a descrição da comunidade
+     * @throws CommunityNotFoundException Se a comunidade não existir
+     */
     public String getDescricaoComunidade(String nome) throws CommunityNotFoundException {
         if(!this.communities.containsKey(nome)){
             throw new CommunityNotFoundException();
         }
-
         return communities.get(nome).getDescription();
     }
 
+    /**
+     * Obtém o nome do dono de uma comunidade específica.
+     *
+     * @param nome Nome da comunidade
+     * @return Nome do dono da comunidade
+     * @throws CommunityNotFoundException Se a comunidade não existir
+     */
     public String getDonoComunidade(String nome) throws CommunityNotFoundException {
         if(!this.communities.containsKey(nome)){
             throw new CommunityNotFoundException();
         }
-
         return communities.get(nome).getOwner().getName();
     }
 
+    /**
+     * Retorna uma lista formatada com os membros de uma comunidade.
+     *
+     * @param nome Nome da comunidade
+     * @return String formatada com os membros
+     * @throws CommunityNotFoundException Se a comunidade não existir
+     */
     public String getMembrosComunidade(String nome) throws CommunityNotFoundException {
         if(!this.communities.containsKey(nome)){
             throw new CommunityNotFoundException();
         }
-
         return communities.get(nome).getMembers();
     }
 
+    /**
+     * Adiciona um usuário como membro de uma comunidade existente.
+     *
+     * @param loginUsuario Login do usuário a ser adicionado
+     * @param nome Nome da comunidade
+     * @throws CommunityNotFoundException Se a comunidade não existir
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
     public void adicionarComunidade(String loginUsuario, String nome) throws CommunityNotFoundException, UserNotFoundException {
         User user = findUserByLogin(loginUsuario);
         if(!this.communities.containsKey(nome)){
@@ -385,11 +420,27 @@ public class Sistema {
         saveData();
     }
 
+    /**
+     * Lista todas as comunidades das quais um usuário participa.
+     *
+     * @param loginUsuario Login do usuário
+     * @return String formatada com a lista de comunidades
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
     public String getComunidades(String loginUsuario) throws UserNotFoundException {
         User user = findUserByLogin(loginUsuario);
         return GlobalFormatter.formatList(user.getProfile().getComunidadesParticipante());
     }
 
+    /**
+     * Envia uma mensagem para uma comunidade específica.
+     *
+     * @param loginUsuario Login do usuário remetente
+     * @param nome Nome da comunidade destinatária
+     * @param mensagem Conteúdo da mensagem
+     * @throws UserNotFoundException Se o usuário remetente não for encontrado
+     * @throws CommunityNotFoundException Se a comunidade não existir
+     */
     public void enviarMensagem(String loginUsuario, String nome, String mensagem) throws UserNotFoundException, CommunityNotFoundException {
         User user = findUserByLogin(loginUsuario);
         if(!this.communities.containsKey(nome)){
@@ -397,12 +448,19 @@ public class Sistema {
         }
 
         Message message = new Message(user, communities.get(nome), mensagem);
-
         this.communities.get(nome).sendMessage(message);
 
         saveData();
     }
 
+    /**
+     * Lê a próxima mensagem na fila de mensagens do usuário.
+     *
+     * @param loginUsuario Login do usuário que está lendo
+     * @return Objeto Message contendo a mensagem
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     * @throws EmptyMessagesException Se não houver mensagens para ler
+     */
     public Message lerMensagem(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
         User user = findUserByLogin(loginUsuario);
         if(user.getProfile().getMensagens().isEmpty()){
@@ -466,7 +524,7 @@ public class Sistema {
      */
 
     public void adicionarPaquera(String sessaoId, String paqueraLogin)
-            throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException, SelfNoteException {
+            throws UserNotFoundException, SelfRelationshipException, UserAlreadyAddedException, SelfNoteException {
 
         User usuario = findUserByLogin(sessaoId);
         User paquera = findUserByLogin(paqueraLogin);
@@ -474,7 +532,7 @@ public class Sistema {
         this.verficarInimizade(usuario, paquera);
 
         if (sessaoId.equals(paqueraLogin)) {
-            throw new SelfRelatioshipException("paquera");
+            throw new SelfRelationshipException("paquera");
         }
 
         if (usuario.getProfile().getPaqueras().contains(paquera)) {
@@ -499,7 +557,7 @@ public class Sistema {
      * @throws UserNotFoundException Se algum usuário não for encontrado
      */
     public void adicionarIdolo(String sessaoId, String idoloLogin)
-            throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException {
+            throws UserNotFoundException, SelfRelationshipException, UserAlreadyAddedException {
 
 
         User fa = findUserByLogin(sessaoId);
@@ -508,7 +566,7 @@ public class Sistema {
         this.verficarInimizade(fa, idolo);
 
         if (sessaoId.equals(idoloLogin)) {
-            throw new SelfRelatioshipException("fã");
+            throw new SelfRelationshipException("fã");
         }
 
         if (fa.getProfile().getIdolos().contains(idolo)) {
@@ -520,12 +578,23 @@ public class Sistema {
         saveData();
     }
 
-    public void adicionarInimigo(String sessaoId, String inimigoLogin) throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException {
+    /**
+     * Adiciona um usuário como inimigo de outro usuário no sistema (relação mútua).
+     *
+     * @param sessaoId Login do usuário que está adicionando o inimigo
+     * @param inimigoLogin Login do usuário a ser adicionado como inimigo
+     * @throws UserNotFoundException Se algum dos usuários não for encontrado
+     * @throws SelfRelationshipException Se o usuário tentar se adicionar como próprio inimigo
+     * @throws UserAlreadyAddedException Se o usuário já estiver na lista de inimigos
+     */
+    public void adicionarInimigo(String sessaoId, String inimigoLogin)
+            throws UserNotFoundException, SelfRelationshipException, UserAlreadyAddedException {
+
         User usuario = findUserByLogin(sessaoId);
         User inimigo = findUserByLogin(inimigoLogin);
 
         if (sessaoId.equals(inimigoLogin)) {
-            throw new SelfRelatioshipException("inimigo");
+            throw new SelfRelationshipException("inimigo");
         }
 
         if (usuario.getProfile().getInimigos().contains(inimigo)) {
@@ -535,20 +604,35 @@ public class Sistema {
         usuario.getProfile().getInimigos().add(inimigo);
         inimigo.getProfile().getInimigos().add(usuario);
         saveData();
-
     }
 
-    public void verficarInimizade(User usuario, User inimigo) throws UserNotFoundException, EnemyAlertException {
+    /**
+     * Verifica se existe relação de inimizade entre dois usuários.
+     *
+     * @param usuario Usuário principal a ser verificado
+     * @param inimigo Usuário que pode ser inimigo
+     * @throws UserNotFoundException Se algum dos usuários não for encontrado
+     * @throws EnemyAlertException Se os usuários forem inimigos entre si
+     */
+    public void verficarInimizade(User usuario, User inimigo)
+            throws UserNotFoundException, EnemyAlertException {
+
         if(usuario.getProfile().getInimigos().contains(inimigo)) {
             throw new EnemyAlertException(inimigo.getLogin());
         }
     }
 
+    /**
+     * Obtém a lista formatada de paqueras de um usuário.
+     *
+     * @param sessaoId Login do usuário
+     * @return String formatada com a lista de paqueras
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
     public String getPaqueras(String sessaoId) throws UserNotFoundException {
         User usuario = findUserByLogin(sessaoId);
         return GlobalFormatter.formatList(usuario.getProfile().getPaqueras());
     }
-
     /**
      * Obtém todos os fãs de um usuário.
      *
@@ -559,6 +643,95 @@ public class Sistema {
     public String getFas(String loginIdolo) throws UserNotFoundException {
         User idolo = findUserByLogin(loginIdolo);
         return GlobalFormatter.formatList(idolo.getProfile().getFas());
+    }
+
+    /**
+     * Remove completamente um usuário do sistema, incluindo todas as suas relações e participações.
+     *
+     * <p>Esta operação realiza as seguintes ações:</p>
+     * <ol>
+     *   <li>Remove o usuário das listas de inimigos de outros usuários</li>
+     *   <li>Remove o usuário das listas de amigos de outros usuários</li>
+     *   <li>Remove o usuário das listas de fãs de seus ídolos</li>
+     *   <li>Remove o usuário das listas de ídolos de seus fãs</li>
+     *   <li>Remove o usuário das listas de paqueras de outros usuários</li>
+     *   <li>Remove o usuário de todas as comunidades que participa como membro</li>
+     *   <li>Para comunidades onde é dono:
+     *     <ul>
+     *       <li>Remove todos os membros</li>
+     *       <li>Remove a comunidade do sistema</li>
+     *     </ul>
+     *   </li>
+     *   <li>Remove todos os recados enviados pelo usuário</li>
+     *   <li>Limpa todos os dados do perfil do usuário</li>
+     *   <li>Remove o usuário da lista de sessões ativas</li>
+     *   <li>Remove o usuário da lista principal de usuários</li>
+     * </ol>
+     *
+     * @param sessaoId Login do usuário a ser removido
+     * @throws UserNotFoundException Se o usuário não for encontrado no sistema
+     *
+     * @see UserProfile#clear()
+     * @see Community#removeMember(User)
+     */
+    public void removerUsuario(String sessaoId) throws UserNotFoundException {
+        User usuario = findUserByLogin(sessaoId);
+
+        // Remover o usuário das listas de INIMIGOS de outros usuários
+        for (User inimigo : new ArrayList<>(usuario.getProfile().getInimigos())) {
+            inimigo.getProfile().removerInimigo(usuario);
+        }
+
+        // Remover o usuário das listas de AMIGOS de outros usuários
+        for (String amigo : new ArrayList<>(usuario.getProfile().getAmigos())) {
+            User userAmigo = findUserByLogin(amigo);
+            userAmigo.getProfile().removerAmigo(userAmigo.getName());
+        }
+
+        // Remover o usuário das listas de FÃS de seus ídolos
+        for (User idolo : new ArrayList<>(usuario.getProfile().getIdolos())) {
+            idolo.getProfile().removerIdolo(usuario);
+        }
+
+        // Remover o usuário das listas de ÍDOLOS de seus fãs
+        for (User fa : new ArrayList<>(usuario.getProfile().getFas())) {
+            fa.getProfile().removerFa(usuario);
+        }
+
+        // Remover o usuário das listas de PAQUERAS de outros usuários
+        for (User paquera : new ArrayList<>(usuario.getProfile().getPaqueras())) {
+            paquera.getProfile().removerPaquera(usuario);
+        }
+
+        // Remover o usuário dos membros das comunidades que participa
+        for (Community comunidade : usuario.getProfile().getComunidadesParticipante()) {
+            comunidade.removeMember(usuario);
+        }
+
+        // Processar comunidades onde o usuário é dono
+        for (Community comunidade : usuario.getProfile().getComunidadesDono()) {
+            for (User member : new ArrayList<>(comunidade.getMemberObject())) {
+                comunidade.removeMember(member);
+                member.getProfile().sairComunidade(comunidade);
+            }
+            this.communities.remove(comunidade.getName());
+        }
+
+        // Remover recados enviados pelo usuário
+        for (User userRecado : new ArrayList<>(this.users)) {
+            for (Note note : userRecado.getProfile().getRecados()) {
+                if(note.getRemetente().equals(usuario)) {
+                    userRecado.getProfile().removerRecado(note);
+                }
+            }
+        }
+
+        // Limpar dados do usuário e remover do sistema
+        usuario.getProfile().clear();
+        this.sessions.remove(usuario.getName());
+        this.users.remove(usuario);
+
+        saveData();
     }
 
     /**

@@ -9,6 +9,12 @@ package br.ufal.ic.p2.jackut.models;
 
 import java.io.Serializable;
 
+/**
+ * Classe que representa o usuário.
+ *
+ * <p>Esta classe é serializável para permitir armazenamento e transmissão.</p>
+ */
+
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     private String name;

@@ -174,69 +174,207 @@ public class Facade {
         return sistema.lerRecado(loginUsuario);
     }
 
-    public void criarComunidade(String loginUsuario, String nome, String descricao) throws CommunityCreationException, UserNotFoundException{
+    /**
+     * Cria uma nova comunidade com o nome e descrição fornecidos, pertencente ao usuário especificado.
+     *
+     * @param loginUsuario Login do usuário que está criando a comunidade
+     * @param nome Nome da comunidade a ser criada
+     * @param descricao Descrição da comunidade
+     * @throws CommunityCreationException Se ocorrer um erro ao criar a comunidade
+     * @throws UserNotFoundException Se o usuário especificado não existir
+     */
+    public void criarComunidade(String loginUsuario, String nome, String descricao) throws CommunityCreationException, UserNotFoundException {
         sistema.criarComunidade(loginUsuario, nome, descricao);
     }
 
+    /**
+     * Obtém a descrição de uma comunidade existente.
+     *
+     * @param nome Nome da comunidade
+     * @return Descrição da comunidade
+     * @throws CommunityNotFoundException Se a comunidade não for encontrada
+     */
     public String getDescricaoComunidade(String nome) throws CommunityNotFoundException {
-       return sistema.getDescricaoComunidade(nome);
+        return sistema.getDescricaoComunidade(nome);
     }
 
+    /**
+     * Obtém o dono (criador) de uma comunidade.
+     *
+     * @param nome Nome da comunidade
+     * @return Login do dono da comunidade
+     * @throws CommunityNotFoundException Se a comunidade não for encontrada
+     */
     public String getDonoComunidade(String nome) throws CommunityNotFoundException {
         return sistema.getDonoComunidade(nome);
     }
 
+    /**
+     * Obtém a lista de membros de uma comunidade.
+     *
+     * @param nome Nome da comunidade
+     * @return Lista de membros da comunidade
+     * @throws CommunityNotFoundException Se a comunidade não for encontrada
+     */
     public String getMembrosComunidade(String nome) throws CommunityNotFoundException {
         return sistema.getMembrosComunidade(nome);
     }
 
+    /**
+     * Adiciona um usuário a uma comunidade existente.
+     *
+     * @param loginUsuario Login do usuário a ser adicionado
+     * @param nome Nome da comunidade
+     * @throws CommunityNotFoundException Se a comunidade não for encontrada
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
     public void adicionarComunidade(String loginUsuario, String nome) throws CommunityNotFoundException, UserNotFoundException {
         sistema.adicionarComunidade(loginUsuario, nome);
     }
 
+    /**
+     * Obtém a lista de comunidades às quais um usuário pertence.
+     *
+     * @param loginUsuario Login do usuário
+     * @return Lista de comunidades do usuário
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
     public String getComunidades(String loginUsuario) throws UserNotFoundException {
         return sistema.getComunidades(loginUsuario);
     }
 
+    /**
+     * Envia uma mensagem para uma comunidade.
+     *
+     * @param loginUsuario Login do usuário que está enviando a mensagem
+     * @param nome Nome da comunidade destinatária
+     * @param mensagem Conteúdo da mensagem
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     * @throws CommunityNotFoundException Se a comunidade não for encontrada
+     */
     public void enviarMensagem(String loginUsuario, String nome, String mensagem) throws UserNotFoundException, CommunityNotFoundException {
         sistema.enviarMensagem(loginUsuario, nome, mensagem);
     }
 
+    /**
+     * Lê a próxima mensagem destinada ao usuário.
+     *
+     * @param loginUsuario Login do usuário que está lendo a mensagem
+     * @return Objeto Message contendo a mensagem
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     * @throws EmptyMessagesException Se não houver mensagens para ler
+     */
     public Message lerMensagem(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
         return sistema.lerMensagem(loginUsuario);
     }
 
+    /**
+     * Verifica se um usuário é inimigo de outro.
+     *
+     * @param sessaoId Login do usuário que está verificando
+     * @param inimigoLogin Login do possível inimigo
+     * @return true se for inimigo, false caso contrário
+     * @throws UserNotFoundException Se algum dos usuários não for encontrado
+     */
     public boolean ehInimigo(String sessaoId, String inimigoLogin) throws UserNotFoundException {
         return sistema.ehInimigo(sessaoId, inimigoLogin);
     }
 
+    /**
+     * Verifica se um usuário tem outro como paquera.
+     *
+     * @param sessaoId Login do usuário que está verificando
+     * @param paqueraLogin Login da possível paquera
+     * @return true se for paquera, false caso contrário
+     * @throws UserNotFoundException Se algum dos usuários não for encontrado
+     */
     public boolean ehPaquera(String sessaoId, String paqueraLogin) throws UserNotFoundException {
         return sistema.ehPaquera(sessaoId, paqueraLogin);
     }
 
+    /**
+     * Verifica se um usuário é fã de outro.
+     *
+     * @param loginFa Login do possível fã
+     * @param idoloLogin Login do possível ídolo
+     * @return true se for fã, false caso contrário
+     * @throws UserNotFoundException Se algum dos usuários não for encontrado
+     */
     public boolean ehFa(String loginFa, String idoloLogin) throws UserNotFoundException {
         return sistema.ehFa(loginFa, idoloLogin);
     }
 
+    /**
+     * Adiciona um usuário como paquera de outro.
+     *
+     * @param sessaoId Login do usuário que está adicionando a paquera
+     * @param paqueraLogin Login da paquera a ser adicionada
+     * @throws UserNotFoundException Se algum dos usuários não for encontrado
+     * @throws SelfRelationshipException Se tentar adicionar a si mesmo
+     * @throws UserAlreadyAddedException Se a paquera já foi adicionada anteriormente
+     * @throws SelfNoteException Se tentar adicionar uma relação consigo mesmo
+     */
     public void adicionarPaquera(String sessaoId, String paqueraLogin)
-            throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException, SelfNoteException {
+            throws UserNotFoundException, SelfRelationshipException, UserAlreadyAddedException, SelfNoteException {
         sistema.adicionarPaquera(sessaoId, paqueraLogin);
     }
 
-    public void adicionarIdolo(String sessaoId, String idoloLogin) throws UserNotFoundException, UserAlreadyAddedException, SelfRelatioshipException {
+    /**
+     * Adiciona um usuário como ídolo de outro.
+     *
+     * @param sessaoId Login do usuário que está adicionando o ídolo
+     * @param idoloLogin Login do ídolo a ser adicionado
+     * @throws UserNotFoundException Se algum dos usuários não for encontrado
+     * @throws UserAlreadyAddedException Se o ídolo já foi adicionado anteriormente
+     * @throws SelfRelationshipException Se tentar adicionar a si mesmo
+     */
+    public void adicionarIdolo(String sessaoId, String idoloLogin) throws UserNotFoundException, UserAlreadyAddedException, SelfRelationshipException {
         sistema.adicionarIdolo(sessaoId, idoloLogin);
     }
 
-    public void adicionarInimigo(String sessaoId, String inimigoLogin) throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException {
+    /**
+     * Adiciona um usuário como inimigo de outro.
+     *
+     * @param sessaoId Login do usuário que está adicionando o inimigo
+     * @param inimigoLogin Login do inimigo a ser adicionado
+     * @throws UserNotFoundException Se algum dos usuários não for encontrado
+     * @throws SelfRelationshipException Se tentar adicionar a si mesmo
+     * @throws UserAlreadyAddedException Se o inimigo já foi adicionado anteriormente
+     */
+    public void adicionarInimigo(String sessaoId, String inimigoLogin) throws UserNotFoundException, SelfRelationshipException, UserAlreadyAddedException {
         sistema.adicionarInimigo(sessaoId, inimigoLogin);
     }
 
+    /**
+     * Obtém a lista de paqueras de um usuário.
+     *
+     * @param sessaoId Login do usuário
+     * @return Lista de paqueras do usuário
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
     public String getPaqueras(String sessaoId) throws UserNotFoundException {
         return sistema.getPaqueras(sessaoId);
     }
 
+    /**
+     * Obtém a lista de fãs de um usuário.
+     *
+     * @param loginIdolo Login do ídolo
+     * @return Lista de fãs do usuário
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
     public String getFas(String loginIdolo) throws UserNotFoundException {
         return sistema.getFas(loginIdolo);
+    }
+
+    /**
+     * Remove um usuário do sistema.
+     *
+     * @param sessaoId Login do usuário a ser removido
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
+    public void removerUsuario(String sessaoId) throws UserNotFoundException {
+        sistema.removerUsuario(sessaoId);
     }
 
 }
