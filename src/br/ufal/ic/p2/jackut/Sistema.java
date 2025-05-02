@@ -8,10 +8,9 @@
 package br.ufal.ic.p2.jackut;
 
 import br.ufal.ic.p2.jackut.Utils.GlobalFormatter;
-import br.ufal.ic.p2.jackut.exceptions.Community.CommunityCreationException;
-import br.ufal.ic.p2.jackut.exceptions.Community.CommunityNotFoundException;
-import br.ufal.ic.p2.jackut.exceptions.Friendship.*;
-import br.ufal.ic.p2.jackut.exceptions.Message.EmptyMessagesException;
+import br.ufal.ic.p2.jackut.exceptions.Community.*;
+import br.ufal.ic.p2.jackut.exceptions.Relationship.*;
+import br.ufal.ic.p2.jackut.exceptions.Message.*;
 import br.ufal.ic.p2.jackut.exceptions.Note.*;
 import br.ufal.ic.p2.jackut.exceptions.Profile.*;
 import br.ufal.ic.p2.jackut.exceptions.Session.*;
@@ -222,6 +221,8 @@ public class Sistema {
         User user = findUserByLogin(loginUsuario);
         User amigo = findUserByLogin(loginAmigo);
 
+        this.verficarInimizade(user, amigo);
+
         if (loginUsuario.equals(loginAmigo)) throw FriendshipException.selfFriendship();
         if (user.getProfile().getAmigosPendentes().contains(loginAmigo))
             throw FriendshipException.pendingFriendRequest();
@@ -304,6 +305,9 @@ public class Sistema {
 
         User destinatario = findUserByLogin(loginRecado);
         User remetente = findUserByLogin(loginUsuario);
+
+        this.verficarInimizade(remetente, destinatario);
+
         Note note = new Note(remetente, destinatario, recado);
 
         destinatario.getProfile().getRecados().offer(note);
@@ -408,6 +412,155 @@ public class Sistema {
         saveData();
         return mensagem;
     }
+
+    /**
+     * Verifica se um usuário tem paquera por outro.
+     *
+     * @param sessaoId Login da sessão do usuário
+     * @param paqueraLogin Login da possível paquera
+     * @return true se for paquera, false caso contrário
+     * @throws UserNotFoundException Se algum usuário não for encontrado
+     */
+    public boolean ehPaquera(String sessaoId, String paqueraLogin) throws UserNotFoundException {
+        User usuario = findUserByLogin(sessaoId);
+        User paquera = findUserByLogin(paqueraLogin);
+        return usuario.getProfile().getPaqueras().contains(paquera);
+    }
+
+
+    /**
+     * Verifica se um usuário é fã de outro.
+     *
+     * @param loginFa Login do possível fã
+     * @param idoloLogin Login do possível ídolo
+     * @return true se for fã, false caso contrário
+     * @throws UserNotFoundException Se algum usuário não for encontrado
+     */
+    public boolean ehFa(String loginFa, String idoloLogin) throws UserNotFoundException {
+        User idolo = findUserByLogin(idoloLogin);
+        User fa = findUserByLogin(loginFa);
+        return idolo.getProfile().getFas().contains(fa);
+    }
+
+
+    /**
+     * Verifica se um usuário é inimigo de outro.
+     *
+     * @param sessaoId Login da sessão do usuário
+     * @param inimigoLogin Login do possível inimigo
+     * @return true se for inimigo, false caso contrário
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
+    public boolean ehInimigo(String sessaoId, String inimigoLogin) throws UserNotFoundException {
+        User usuario = findUserByLogin(sessaoId);
+        User inimigo = findUserByLogin(inimigoLogin);
+        return usuario.getProfile().getInimigos().contains(inimigo);
+    }
+
+    /**
+     * Adiciona uma paquera para o usuário.
+     *
+     * @param sessaoId Login da sessão do usuário
+     * @param paqueraLogin Login da paquera
+     * @throws UserNotFoundException Se algum usuário não for encontrado
+     */
+
+    public void adicionarPaquera(String sessaoId, String paqueraLogin)
+            throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException, SelfNoteException {
+
+        User usuario = findUserByLogin(sessaoId);
+        User paquera = findUserByLogin(paqueraLogin);
+
+        this.verficarInimizade(usuario, paquera);
+
+        if (sessaoId.equals(paqueraLogin)) {
+            throw new SelfRelatioshipException("paquera");
+        }
+
+        if (usuario.getProfile().getPaqueras().contains(paquera)) {
+            throw new UserAlreadyAddedException("paquera");
+        }
+
+        usuario.getProfile().getPaqueras().add(paquera);
+
+        if (paquera.getProfile().getPaqueras().contains(usuario)) {
+            this.enviarRecado(paquera.getName(), usuario.getName(), paquera.getLogin() + " é seu paquera - Recado do Jackut.");
+            this.enviarRecado(usuario.getName(), paquera.getName(), usuario.getLogin() + " é seu paquera - Recado do Jackut.");
+        }
+        saveData();
+    }
+
+
+    /**
+     * Adiciona um ídolo para o usuário (relação fã-ídolo).
+     *
+     * @param sessaoId Login da sessão do fã
+     * @param idoloLogin Login do ídolo
+     * @throws UserNotFoundException Se algum usuário não for encontrado
+     */
+    public void adicionarIdolo(String sessaoId, String idoloLogin)
+            throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException {
+
+
+        User fa = findUserByLogin(sessaoId);
+        User idolo = findUserByLogin(idoloLogin);
+
+        this.verficarInimizade(fa, idolo);
+
+        if (sessaoId.equals(idoloLogin)) {
+            throw new SelfRelatioshipException("fã");
+        }
+
+        if (fa.getProfile().getIdolos().contains(idolo)) {
+            throw new UserAlreadyAddedException("ídolo");
+        }
+
+        fa.getProfile().getIdolos().add(idolo);
+        idolo.getProfile().getFas().add(fa);
+        saveData();
+    }
+
+    public void adicionarInimigo(String sessaoId, String inimigoLogin) throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException {
+        User usuario = findUserByLogin(sessaoId);
+        User inimigo = findUserByLogin(inimigoLogin);
+
+        if (sessaoId.equals(inimigoLogin)) {
+            throw new SelfRelatioshipException("inimigo");
+        }
+
+        if (usuario.getProfile().getInimigos().contains(inimigo)) {
+            throw new UserAlreadyAddedException("inimigo");
+        }
+
+        usuario.getProfile().getInimigos().add(inimigo);
+        inimigo.getProfile().getInimigos().add(usuario);
+        saveData();
+
+    }
+
+    public void verficarInimizade(User usuario, User inimigo) throws UserNotFoundException, EnemyAlertException {
+        if(usuario.getProfile().getInimigos().contains(inimigo)) {
+            throw new EnemyAlertException(inimigo.getLogin());
+        }
+    }
+
+    public String getPaqueras(String sessaoId) throws UserNotFoundException {
+        User usuario = findUserByLogin(sessaoId);
+        return GlobalFormatter.formatList(usuario.getProfile().getPaqueras());
+    }
+
+    /**
+     * Obtém todos os fãs de um usuário.
+     *
+     * @param loginIdolo Login do ídolo
+     * @return Conjunto de logins dos fãs
+     * @throws UserNotFoundException Se o usuário não for encontrado
+     */
+    public String getFas(String loginIdolo) throws UserNotFoundException {
+        User idolo = findUserByLogin(loginIdolo);
+        return GlobalFormatter.formatList(idolo.getProfile().getFas());
+    }
+
     /**
      * Encerra o sistema, persisitindo os dados e limpando a sessão.
      * Também limpa a instância Singleton.

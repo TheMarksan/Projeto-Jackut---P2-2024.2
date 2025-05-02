@@ -7,8 +7,7 @@
  */
 package br.ufal.ic.p2.jackut.models;
 
-import br.ufal.ic.p2.jackut.exceptions.Community.CommunityCreationException;
-import br.ufal.ic.p2.jackut.exceptions.Community.UserAlreadyMemberException;
+import br.ufal.ic.p2.jackut.exceptions.Community.*;
 
 import java.io.Serializable;
 import java.util.*;
@@ -22,9 +21,7 @@ public class UserProfile implements Serializable {
     // Lista de amigos
     private List<String> amigos;
     private List<String> amigosPendentes;
-    private List<User> paqueras;
-    private List<User> fas;
-    private List<User> inimigos;
+    private List<User> paqueras, fas, inimigos, idolos;
     private Queue<Note> recados;
     private Queue<Message> mensagens;
     private List<Note> recadosLidos;
@@ -41,6 +38,7 @@ public class UserProfile implements Serializable {
         this.paqueras = new ArrayList<>();
         this.fas = new ArrayList<>();
         this.inimigos = new ArrayList<>();
+        this.idolos = new ArrayList<>();
         this.amigosPendentes = new ArrayList<>();
         this.recados = new LinkedList<>();
         this.recadosLidos = new ArrayList<>();
@@ -169,6 +167,11 @@ public class UserProfile implements Serializable {
 
     }
 
+    public void setRecados(Note recado) {
+        this.recados.offer(recado);
+
+    }
+
     public void setPaquera(User paquera) {
         this.paqueras.add(paquera);
     }
@@ -181,6 +184,10 @@ public class UserProfile implements Serializable {
         this.inimigos.add(inimigo);
     }
 
+    public void setIdolos(User idolo){
+        this.idolos.add(idolo);
+    }
+
     public List<User> getPaqueras() {
         return paqueras;
     }
@@ -191,5 +198,9 @@ public class UserProfile implements Serializable {
 
     public List<User> getInimigos() {
         return inimigos;
+    }
+
+    public List<User> getIdolos() {
+        return idolos;
     }
 }

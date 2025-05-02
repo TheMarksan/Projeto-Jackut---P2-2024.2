@@ -1,4 +1,4 @@
-package br.ufal.ic.p2.jackut.exceptions.Friendship;
+package br.ufal.ic.p2.jackut.exceptions.Relationship;
 
 public class FriendshipException extends Exception {
     public FriendshipException() {

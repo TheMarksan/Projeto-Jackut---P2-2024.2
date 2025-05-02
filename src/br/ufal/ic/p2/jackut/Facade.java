@@ -2,7 +2,7 @@ package br.ufal.ic.p2.jackut;
 
 import br.ufal.ic.p2.jackut.exceptions.Community.CommunityCreationException;
 import br.ufal.ic.p2.jackut.exceptions.Community.CommunityNotFoundException;
-import br.ufal.ic.p2.jackut.exceptions.Friendship.*;
+import br.ufal.ic.p2.jackut.exceptions.Relationship.*;
 import br.ufal.ic.p2.jackut.exceptions.Message.EmptyMessagesException;
 import br.ufal.ic.p2.jackut.exceptions.Note.*;
 import br.ufal.ic.p2.jackut.exceptions.Profile.*;
@@ -69,7 +69,7 @@ public class Facade {
      * @return Login da sessão criada
      * @throws SessionOpeningException Se a autenticação falhar
      */
-    public String abrirSessao(String login, String senha) throws SessionOpeningException {
+    public String abrirSessao(String login, String senha) throws SessionOpeningException, UserNotFoundException {
         return sistema.abrirSessao(login, senha);
     }
 
@@ -204,6 +204,39 @@ public class Facade {
 
     public Message lerMensagem(String loginUsuario) throws UserNotFoundException, EmptyMessagesException {
         return sistema.lerMensagem(loginUsuario);
+    }
+
+    public boolean ehInimigo(String sessaoId, String inimigoLogin) throws UserNotFoundException {
+        return sistema.ehInimigo(sessaoId, inimigoLogin);
+    }
+
+    public boolean ehPaquera(String sessaoId, String paqueraLogin) throws UserNotFoundException {
+        return sistema.ehPaquera(sessaoId, paqueraLogin);
+    }
+
+    public boolean ehFa(String loginFa, String idoloLogin) throws UserNotFoundException {
+        return sistema.ehFa(loginFa, idoloLogin);
+    }
+
+    public void adicionarPaquera(String sessaoId, String paqueraLogin)
+            throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException, SelfNoteException {
+        sistema.adicionarPaquera(sessaoId, paqueraLogin);
+    }
+
+    public void adicionarIdolo(String sessaoId, String idoloLogin) throws UserNotFoundException, UserAlreadyAddedException, SelfRelatioshipException {
+        sistema.adicionarIdolo(sessaoId, idoloLogin);
+    }
+
+    public void adicionarInimigo(String sessaoId, String inimigoLogin) throws UserNotFoundException, SelfRelatioshipException, UserAlreadyAddedException {
+        sistema.adicionarInimigo(sessaoId, inimigoLogin);
+    }
+
+    public String getPaqueras(String sessaoId) throws UserNotFoundException {
+        return sistema.getPaqueras(sessaoId);
+    }
+
+    public String getFas(String loginIdolo) throws UserNotFoundException {
+        return sistema.getFas(loginIdolo);
     }
 
 }
