@@ -53,6 +53,10 @@ public class Community implements Serializable {
         this.description = description;
         this.members = new ArrayList<>();
         this.owner = owner;
+
+        this.members.add(owner);
+        owner.getProfile().setDonoComunidades(this);
+        owner.getProfile().setParticipanteComunidade(this);
     }
 
     /**

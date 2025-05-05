@@ -9,4 +9,5 @@ br.ufal.ic.p2.jackut.exceptions.Session
 br.ufal.ic.p2.jackut.exceptions.User
 br.ufal.ic.p2.jackut.models
 br.ufal.ic.p2.jackut.persistence
+br.ufal.ic.p2.jackut.services
 br.ufal.ic.p2.jackut.Utils

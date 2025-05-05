@@ -55,9 +55,11 @@ public class Facade {
      * @param nome Nome completo do usuário
      * @param senha Senha de acesso
      * @param login Identificador único
-     * @throws UserCreationException Se os dados forem inválidos ou o login já existir
+     * @throws InvalidLoginException Se o login for inválido
+     * @throws InvalidPasswordException Se a senha for inválida
+     * @throws AccountAlreadyExistsException Se o login já existir
      */
-    public void criarUsuario(String nome, String senha, String login) throws UserCreationException {
+    public void criarUsuario(String nome, String senha, String login) throws InvalidLoginException, InvalidPasswordException, AccountAlreadyExistsException {
         sistema.criarUsuario(nome, senha, login);
     }
 
@@ -108,7 +110,7 @@ public class Facade {
      * @throws FriendshipException Se já forem amigos ou houver solicitação pendente
      */
     public void adicionarAmigo(String loginUsuario, String loginAmigo)
-            throws UserNotFoundException, FriendshipException {
+            throws UserNotFoundException, FriendshipException, SelfRelationshipException, UserAlreadyAddedException {
         sistema.adicionarAmigo(loginUsuario, loginAmigo);
     }
 

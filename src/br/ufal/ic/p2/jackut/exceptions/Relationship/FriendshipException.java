@@ -25,14 +25,6 @@ public class FriendshipException extends Exception {
         super();
     }
 
-    /**
-     * Método factory para criar exceção de autoamizade.
-     *
-     * @return FriendshipException configurada para caso de autoamizade
-     */
-    public static FriendshipException selfFriendship() {
-        return new FriendshipException("Usuário não pode adicionar a si mesmo como amigo.");
-    }
 
     /**
      * Método factory para criar exceção de solicitação pendente.
@@ -41,15 +33,6 @@ public class FriendshipException extends Exception {
      */
     public static FriendshipException pendingFriendRequest() {
         return new FriendshipException("Usuário já está adicionado como amigo, esperando aceitação do convite.");
-    }
-
-    /**
-     * Método factory para criar exceção de amizade já existente.
-     *
-     * @return FriendshipException configurada para caso de amizade duplicada
-     */
-    public static FriendshipException alreadyFriends() {
-        return new FriendshipException("Usuário já está adicionado como amigo.");
     }
 
     /**
