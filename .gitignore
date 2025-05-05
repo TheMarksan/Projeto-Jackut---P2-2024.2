@@ -4,7 +4,7 @@ out/
 !**/src/test/**/out/
 
 # Ignorar arquivos de banco de dados
-/database/*.xml
+/database
 
 
 ### Eclipse ###
