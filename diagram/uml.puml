@@ -1,0 +1,217 @@
+@startuml
+!theme plain
+top to bottom direction
+
+' ========== CLASSES PRINCIPAIS ==========
+class Sistema <<Singleton>> {
+    - static instance: Sistema
+    - userService: UserService
+    - sessionService: SessionService
+    - communityService: CommunityService
+    - userDAO: UserDAO
+    - sessionDAO: SessionDAO
+    - communityDAO: CommunityDAO
+}
+
+class Facade <<Facade>> {
+    - sistema: Sistema
+}
+
+' ========== SERVIÇOS ==========
+class UserService {
+    - userDAO: UserDAO
+}
+
+class SessionService {
+    - sessionDAO: SessionDAO
+}
+
+class CommunityService {
+    - communityDAO: CommunityDAO
+}
+
+' ========== PERSISTÊNCIA ==========
+class UserDAO <<DAO>> {
+    + save(List<User>)
+    + load(): List<User>
+}
+
+class SessionDAO <<DAO>> {
+    + save(List<String>)
+    + load(): List<String>
+}
+
+class CommunityDAO <<DAO>> {
+    + save(Map<String,Community>)
+    + load(): Map<String,Community>
+}
+
+' ========== MODELOS DE DOMÍNIO ==========
+class User <<Serializable>> {
+    - name: String
+    - password: String
+    - login: String
+    - profile: UserProfile
+    --
+    + getName()
+    + getPassword()
+    + getLogin()
+    + getProfile()
+}
+
+class UserProfile <<Serializable>> {
+    - atributos: Map<String,String>
+    - amigos: List<String>
+    - amigosPendentes: List<String>
+    - paqueras: List<User>
+    - fas: List<User>
+    - inimigos: List<User>
+    - idolos: List<User>
+    - recados: Queue<Note>
+    - mensagens: Queue<Message>
+    - comunidadesParticipante: List<Community>
+    - comunidadesDono: List<Community>
+    --
+    + getAtributo()
+    + setAtributo()
+    + getAmigos()
+    + getPaqueras()
+    + getFas()
+    + getInimigos()
+    + getIdolos()
+    + getRecados()
+    + getMensagens()
+}
+
+class Community <<Serializable>> {
+    - name: String
+    - description: String
+    - owner: User
+    - members: ArrayList<User>
+    --
+    + getName()
+    + getDescription()
+    + getOwner()
+    + getMembers()
+    + addMember()
+    + removeMember()
+    + sendMessage()
+}
+
+class Message <<Serializable>> {
+    - remetente: User
+    - comunidade: Community
+    - messagem: String
+    --
+    + getRemetente()
+    + getComunidade()
+    + getMessagem()
+}
+
+class Note <<Serializable>> {
+    - remetente: User
+    - destinatario: User
+    - recado: String
+    --
+    + getRemetente()
+    + getDestinatario()
+    + getRecado()
+}
+
+' ========== RELACIONAMENTOS ==========
+Facade --> Sistema : "usa" >
+
+Sistema *--> UserService
+Sistema *--> SessionService
+Sistema *--> CommunityService
+
+UserService --> UserDAO
+SessionService --> SessionDAO
+CommunityService --> CommunityDAO
+
+User "1" *-- "1" UserProfile : composição
+Community "1" *-- "1" User : dono
+Community "1" *-- "*" User : membros
+
+UserService --> User : gerencia
+CommunityService --> Community : gerencia
+
+Message --> User : remetente
+Message --> Community : comunidade
+Note --> User : remetente
+Note --> User : destinatário
+
+UserProfile "1" *-- "*" Community : comunidadesDono
+UserProfile "1" *-- "*" Community : comunidadesParticipante
+UserProfile "1" *-- "*" User : paqueras
+UserProfile "1" *-- "*" User : fas
+UserProfile "1" *-- "*" User : inimigos
+UserProfile "1" *-- "*" User : idolos
+
+' ========== NOTAS SOBRE PADRÕES ==========
+note top of Facade
+<b>PADRÃO FACADE</b>
+- Interface unificada (38 métodos)
+- Tradução de exceções
+- Ponto único de acesso
+- <color:green>Padrão Estrutural</color>
+end note
+
+note right of Sistema
+<b>SINGLETON + FACADE</b>
+- Controle de instância (Singleton)
+- Coordena subsistemas
+- <color:green>Criacional + Estrutural</color>
+- Injeção de Dependência:
+  Serviços e DAOs injetados
+end note
+
+note left of UserDAO
+<b>PADRÃO DAO</b>
+- Objeto de Acesso a Dados
+- Abstração de persistência
+- <color:blue>Padrão Arquitetural</color>
+- Parte do <b>Injeção de Dependência</b>
+end note
+
+note bottom of UserProfile
+<b>PADRÃO COMPOSIÇÃO</b>
+- Forte vínculo de ciclo de vida
+- Gerencia relacionamentos
+- <color:green>Padrão Estrutural</color>
+- <b>Iterator</b> implícito:
+  Navegação em coleções
+end note
+
+note right of Community
+<b>MARCADOR SERIALIZABLE</b>
+- Capacidade de persistência
+- <color:blue>Padrão Comportamental</color>
+- <b>Registry</b> implícito:
+  DAOs como registros de objetos
+end note
+
+' ========== LEGENDA COM PADRÕES ==========
+legend
+|<b>LEGENDA DE PADRÕES DE PROJETO</b> |
+|-------------------------------------|
+| <color:green>Padrões Estruturais</color> |
+| Singleton    |
+| Facade       |
+| Composição  |
+|-------------------------------------|
+| <color:orange>Padrões Criacionais</color> |
+| Injeção de Dependência |
+| DAO (Data Access Object) |
+|-------------------------------------|
+| <color:blue>Padrões Comportamentais</color> |
+| Marcador Serializable |
+| Iterator (implícito) |
+| Observer (potencial) |
+|-------------------------------------|
+| <color:purple>Arquiteturais</color> |
+| Layer Supertype |
+| Registry Pattern |
+endlegend
+
+@enduml
